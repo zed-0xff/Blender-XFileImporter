@@ -44,7 +44,10 @@ def convert_mesh(mesh: Mesh, basepath: str) -> bpy.types.Mesh:
     newMesh = bpy.data.meshes.new(mesh.materials[0].name)
     newMesh.from_pydata(positions, [], indexBufferSource)
     
-    newMesh.normals_split_custom_set(normals)
+    # Set custom normals - In Blender 5.0, normals are now set directly as an attribute
+    # Custom normals are automatically used when they exist
+    newMesh.attributes.new(name='custom_normal', type='FLOAT_VECTOR', domain='CORNER')
+    newMesh.attributes['custom_normal'].data.foreach_set('vector', [comp for normal in normals for comp in normal])
     
     if uvs:
         uvl = newMesh.uv_layers.new()
@@ -79,9 +82,9 @@ def convert_mesh(mesh: Mesh, basepath: str) -> bpy.types.Mesh:
     # add material
     for oldMat in mesh.materials:
         temp_material = bpy.data.materials.new(oldMat.name)
+        # In Blender 5.0, materials always use nodes by default (use_nodes is deprecated)
         temp_material_wrap = node_shader_utils.PrincipledBSDFWrapper(
             temp_material, is_readonly=False)
-        temp_material_wrap.use_nodes = True
         # Diffuse (RGBA) -> Base Color & Alpha
         temp_material_wrap.base_color = oldMat.diffuse[:3]
         temp_material_wrap.alpha = oldMat.diffuse[3]

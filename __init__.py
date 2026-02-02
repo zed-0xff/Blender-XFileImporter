@@ -8,8 +8,8 @@ from .xfile_importer import load
 bl_info = {
     "name": "DirectX XFile format",
     "author": "oguna",
-    "version": (0, 1, 0),
-    "blender": (4, 2, 0),
+    "version": (0, 2, 0),
+    "blender": (5, 0, 0),
     "category": "Import-Export",
 }
 
